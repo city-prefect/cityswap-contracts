@@ -18,24 +18,6 @@ contract TownToken is BEP20('Town Token', 'TOWN') {
         _moveDelegates(address(0), _delegates[_from], _amount);
     }
 
-    // The CTYS TOKEN!
-    CitySwapToken public city;
-
-
-    constructor(CitySwapToken _city) public {
-        city = _city;
-    }
-
-    // Safe town transfer function, just in case if rounding error causes pool to not have enough TOWNs.
-    function safeCityTransfer(address _to, uint256 _amount) public onlyOwner {
-        uint256 cityBal = city.balanceOf(address(this));
-        if (_amount > cityBal) {
-            city.transfer(_to, cityBal);
-        } else {
-            city.transfer(_to, _amount);
-        }
-    }
-
     // Copied and modified from YAM code:
     // https://github.com/yam-finance/yam-protocol/blob/master/contracts/token/YAMGovernanceStorage.sol
     // https://github.com/yam-finance/yam-protocol/blob/master/contracts/token/YAMGovernance.sol

@@ -225,7 +225,7 @@ contract CityVault is Ownable, Pausable {
      * @dev EMERGENCY ONLY. Only callable by the contract admin.
      */
     function emergencyWithdraw() external onlyAdmin {
-        IMasterChef(masterchef).emergencyWithdraw(0);
+        IMasterChef(masterchef).vaultEmergencyWithdraw();
     }
 
     /**

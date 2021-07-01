@@ -116,7 +116,7 @@ contract Prefecture is Ownable, ReentrancyGuard {
     // Cannot add the same LP token more than once., because rewards will be messed up if it is done
     function add(uint256 _allocPoint, IBEP20 _lpToken, uint16 _depositFeeBP, uint256 _harvestInterval, bool _withUpdate, bool _dfRate) public onlyOwner {
         require(_poolTracker[address(_lpToken)] == false, "add: pool already exists");
-        require(_depositFeeBP <= 10000, "add: invalid deposit fee basis points");
+        require(_depositFeeBP <= 1000, "add: invalid deposit fee basis points");
         require(_harvestInterval <= MAXIMUM_HARVEST_INTERVAL, "add: invalid harvest interval");
         if (_withUpdate) {
             massUpdatePools();
@@ -265,7 +265,7 @@ contract Prefecture is Ownable, ReentrancyGuard {
     }
 
     // Stake CTYS tokens to MasterChef
-    function enterStaking(uint256 _amount) public {
+    function enterStaking(uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[0][msg.sender];
         updatePool(0);
@@ -290,7 +290,7 @@ contract Prefecture is Ownable, ReentrancyGuard {
     }
 
     // Withdraw CTYS tokens from STAKING.
-    function leaveStaking(uint256 _amount) public {
+    function leaveStaking(uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[0][msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
@@ -314,6 +314,23 @@ contract Prefecture is Ownable, ReentrancyGuard {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         uint256 amount = user.amount;
+        user.amount = 0;
+        user.rewardDebt = 0;
+        user.rewardLockedUp = 0;
+        user.nextHarvestUntil = 0;
+        pool.lpToken.safeTransfer(address(msg.sender), amount);
+        emit EmergencyWithdraw(msg.sender, _pid, amount);
+    }
+
+    // Withdraw from vault without caring about rewards. EMERGENCY ONLY.
+    function vaultEmergencyWithdraw() public nonReentrant {
+        PoolInfo storage pool = poolInfo[0];
+        UserInfo storage user = userInfo[0][msg.sender];
+        uint256 amount = user.amount;
+
+        //Burn the town token
+        town.burn(msg.sender, amount);
+
         user.amount = 0;
         user.rewardDebt = 0;
         user.rewardLockedUp = 0;
