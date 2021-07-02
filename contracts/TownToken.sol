@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 
 import "./libs/BEP20.sol";
-import "./CitySwapToken.sol";
 
 // TownToken with Governance.
 contract TownToken is BEP20('Town Token', 'TOWN') {
