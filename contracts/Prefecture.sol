@@ -311,6 +311,8 @@ contract Prefecture is Ownable, ReentrancyGuard {
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
     function emergencyWithdraw(uint256 _pid) public nonReentrant {
+        require (_pid != 0, 'withdraw CITY by using vaultEmergencyWithdraw');
+
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         uint256 amount = user.amount;
@@ -322,7 +324,7 @@ contract Prefecture is Ownable, ReentrancyGuard {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Withdraw from vault without caring about rewards. EMERGENCY ONLY.
+    // Withdraw from vault without caring about rewards + burning TOWN. EMERGENCY ONLY.
     function vaultEmergencyWithdraw() public nonReentrant {
         PoolInfo storage pool = poolInfo[0];
         UserInfo storage user = userInfo[0][msg.sender];
@@ -336,7 +338,7 @@ contract Prefecture is Ownable, ReentrancyGuard {
         user.rewardLockedUp = 0;
         user.nextHarvestUntil = 0;
         pool.lpToken.safeTransfer(address(msg.sender), amount);
-        emit EmergencyWithdraw(msg.sender, _pid, amount);
+        emit EmergencyWithdraw(msg.sender, 0, amount);
     }
 
     // Pay or lockup pending CTYS tokens.

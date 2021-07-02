@@ -17,6 +17,8 @@ interface IMasterChef {
 
     function emergencyWithdraw(uint256 _pid) external;
 
+    function vaultEmergencyWithdraw() external;
+
     function cityTransferTaxRate() external view returns (uint16);
 
     function cityBurnRate() external view returns (uint16);
